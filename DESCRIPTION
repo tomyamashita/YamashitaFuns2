@@ -1,0 +1,34 @@
+Package: YamashitaFuns2
+Type: Package
+Title: Functions for processing camera trap imagery and some other stuff
+Version: 0.0.0.17
+Authors@R: c(person("Thomas J.", "Yamashita", 
+                    role = c("aut", "cre"), 
+                    email = "tjyamashta@gmail.com", 
+                    comment = c(ORCID = "0000-0002-0213-6310")) 
+            )
+Maintainer: Thomas J. Yamashita <tjyamashta@gmail.com>
+Description: This package provides functions created for dealing with camera traps, LiDAR, and other data used for my dissertation research. 
+    Functions were created specifically for working with my own data and they may not work well with other data organization methods. 
+    Additional functions are added that I have written for other purposes and other people as they appear. 
+    Everything is a work in progress and it is unlikely that this package will ever reach v1.0. 
+License: CC BY 4.0
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 4.0.2)
+    foreach
+Imports: 
+    activity,
+    camtrapR, 
+    dplyr,
+    exiftoolr,
+    jsonlite,
+    lubridate,
+    openxlsx, 
+    parallel,
+    pbapply,
+    tidyr,
+    zoo
+Suggests:
+    ggplot2
