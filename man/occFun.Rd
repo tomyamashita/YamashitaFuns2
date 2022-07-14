@@ -7,7 +7,7 @@
 \description{This function modifies data for use in occupancy modelling using Unmarked or a separate program, I think.
 }
 \usage{
-occFun(x, ct, unit, subset, ct_probs=T, count=F)
+occFun(x, ct, unit, subset, stationCol, sessionCol=NULL, ct_probs=T, count=F)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -15,6 +15,8 @@ occFun(x, ct, unit, subset, ct_probs=T, count=F)
   \item{ct}{A CT Table following the format from the package camtrapR}
   \item{unit}{The temporal unit for dividing up your data. This must be in units "days"}
   \item{subset}{A character vector indicating which species to prepare data for}
+  \item{stationCol}{Character. A character string for the column used to identify sites}
+  \item{sessionCol}{Character. A character string for the column used to identify sessions. This is currently untested. Use with caution.}
   \item{ct_probs}{Logical. Does the CT table have problems?}
   \item{count}{Logical. Should presence/absence (FALSE) or counts (TRUE) be outputted?}
 }

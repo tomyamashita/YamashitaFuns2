@@ -38,6 +38,13 @@ Kevin Ryer developed early versions of the APFun_env function.
 
 
 ## Changelog
+0.0.0.19 - 2022-07-14
+  Modified the imageeffort_fun function to require a list object input and provide an option to input a timelapse or dataorganize file. This was to make running the function smoother.
+  Modified the movePictures function to require an object input instead of a file path. This reduces the likelihood of errors in the functionality. Also made slight tweaks to the code to improve efficiency.
+
+0.0.0.18 - 2022-07-07
+  Modified the occFun function to better accommodate changes in months when using non-day intervals for aggregation and to better explain what it is doing as it does things.
+  
 0.0.0.17 - 2022-06-07 - 2022-07-01
   Added the cameraRename3 function and associated documentation and fixed a mistake that caused all images to receive the same name. 
   Deprecated the cameraRename2 function due to addition of cameraRename3

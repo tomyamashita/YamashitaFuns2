@@ -730,59 +730,70 @@ APFun_Timelapse <- function(x){
   #rm(x)
 }
 
-### Move all pictures into sorted folders (Added 2022-05-05)
-movePictures <- function(timelapsefile, in.dir, out.dir, create.dirs, type = "none"){
-  #timelapsefile <- "J:/Comparisons/timelapse_out_20220117_BL.csv"
-  #in.dir <- "J:/test/new_20220117"
-  #out.dir <- "J:/test/sorted_20220117"
-  #create.dirs <- F
+### Move all pictures into sorted folders (Added 2022-05-05, Modified 2022-07-14)
+movePictures <- function(x, in.dir, out.dir, create.dirs, type = "none"){
+  #x <- read.csv("K:/Completed/new_20210927/timelapse_out_20210927.csv")
+  #in.dir <- "K:/Completed/new_20210927"
+  #out.dir <- "K:/Completed/new_20210927/sorted"
+  #create.dirs <- T
   #type <- "none"
 
   print(paste("This function started at ", Sys.time(), sep = ""))
 
-  if(grepl("\\.csv", timelapsefile)){
-    timelapse <- read.csv(timelapsefile)
-  }else if(grepl("\\.txt", timelapsefile)){
-    timelapse <- read.table(timelapsefile)
-  }else if(grepl("\\.xlsx", timelapsefile)){
-    print("An xlsx file was recognized. Only the first sheet is used.")
-    timelapse <- openxlsx::read.xlsx(timelapsefile, sheet = 1)
-  }else{
-    stop("Your timelapse file should be in one of c('.csv','.txt','.xlsx') format")
+  if(!dir.exists(in.dir)){
+    stop("Your in.dir does not exist. Did you specify the correct path")
+  }
+  if(grepl("images", in.dir, ignore.case = T)){
+    message("Your in.dir path includes the images folder. File transfer may not work properly if timelapse also references this folder")
+  }
+  if(!dir.exists(out.dir)){
+    stop("Your out.dir does not exist. Did you forget to create it?")
   }
 
-  images1 <- timelapse[,c(1,2,11,12)]
+  x$RelativePath <- gsub("\\\\", "/", x$RelativePath)
+
+  images1 <- x[,c(1,2,11,12)]
   colnames(images1) <- c("File", "Path", "Species", "Individuals")
 
-  if(is.character(timelapse$Species2)){
-    images2 <- timelapse[timelapse$Species2!="",c(1,2,13,14)]
+  if(is.character(x$Species2)){
+    images2 <- x[x$Species2!="",c(1,2,13,14)]
     colnames(images2) <- c("File", "Path", "Species", "Individuals")
   }else{
     images2 <- NULL
   }
-  if(is.character(timelapse$Species3)){
-    images3 <- timelapse[timelapse$Species3!="",c(1,2,15,16)]
+  if(is.character(x$Species3)){
+    images3 <- x[x$Species3!="",c(1,2,15,16)]
     colnames(images3) <- c("File", "Path", "Species", "Individuals")
   }else{
     images3 <- NULL
   }
-  if(is.character(timelapse$SpeciesOther)){
-    images4 <- timelapse[timelapse$SpeciesOther!="",c(1,2,17,18)]
+  if(is.character(x$SpeciesOther)){
+    images4 <- x[x$SpeciesOther!="",c(1,2,17,18)]
     colnames(images4) <- c("File", "Path", "Species", "Individuals")
   }else{
     images4 <- NULL
   }
   x1 <- rbind(images1,images2,images3,images4)
-  x2 <- data.frame(do.call(rbind, strsplit(x1$Path, split = "\\\\")), x1[,c(1,3,4)])
-  x3 <- x2[,c(2,5,6,4)]
-  colnames(x3) <- c("Camera", "Species", "Individuals", "File")
-  x4 <- with(x3, paste(Camera, Species, formatC(Individuals, width = 2, flag = "0"), File, sep = "/"))
+  x2 <- data.frame(do.call(rbind, strsplit(x1$Path, split = "/")), x1[,c("File", "Species", "Individuals")])
+  colnames(x2)[-c(ncol(x2)-2,ncol(x2)-1,ncol(x2))] <- c("Folder", "Camera", "Date")
+  x2$Individuals <- formatC(x2$Individuals, flag = "0", width = 2)
+  x3in <- with(x2, file.path(Folder, Camera, Date, File))
+  x3out <- with(x2, file.path(Camera, Species, Individuals, File))
+
+  if(length(x3in) != length(x3out)){
+    stop("You have different numbers of files in the 'in' and 'out' directories. You broke my function...")
+  }
+
+  rename <- list(in.files = file.path(in.dir, x3in),
+                 out.files = file.path(out.dir, x3out))
+  print(paste("The in files will look like: ", rename[["in.files"]][[1]], sep = ""))
+  print(paste("The out files will look like: ", rename[["out.files"]][[1]], sep = ""))
 
   if(isTRUE(create.dirs)){
     print("Creating Directories")
-    dirs <- with(x3, list(unique(paste(out.dir, Camera, sep = "/")),
+    dirs <- with(x2, list(unique(paste(out.dir, Camera, sep = "/")),
                           unique(paste(out.dir, Camera, Species, sep = "/")),
-                          unique(paste(out.dir, Camera, Species, formatC(Individuals, flag = "0", width = 2), sep = "/"))))
+                          unique(paste(out.dir, Camera, Species, Individuals, sep = "/"))))
     dirsTemp <- lapply(dirs, function(x){
       lapply(x, function(y){
         ifelse(!dir.exists(y), dir.create(y), print("Folder exists"))
@@ -790,29 +801,26 @@ movePictures <- function(timelapsefile, in.dir, out.dir, create.dirs, type = "no
     })
   }
 
-  rename <- list(in.files = with(timelapse, paste(in.dir, gsub("\\\\", "/", RelativePath), File, sep = "/")),
-                 out.files = paste(out.dir, x4, sep = "/"))
-  print(paste("The in files will look like: ", rename[["in.files"]][[1]], sep = ""))
-  print(paste("The out files will look like: ", rename[["out.files"]][[1]], sep = ""))
-
-  if(length(rename[["in.files"]]) != length(rename[["out.files"]])){
-    warning("You have a different number of in and out files, likely because more than one species was detected in a single picture. Suggest using 'copy' instead of 'move' for images.")
+  if(length(unique(x3in)) != length(unique(x3out))){
+    message("You have a different number of in and out files, likely because more than one species was detected in a single picture. \nSuggest using 'copy' instead of 'move' for images.")
   }
 
   if(type=="move"){
     print("File transfer in progress. Images are moved from in.dir to out.dir")
-    file.rename(from = rename[["in.files"]], to = rename[["out.files"]])
+    test <- file.rename(from = rename[["in.files"]], to = rename[["out.files"]])
   }else if(type=="copy"){
     print("File transfer in progress. Images are copied from in.dir to out.dir")
-    file.copy(from = rename[["in.files"]], to = rename[["out.files"]])
+    test <- file.copy(from = rename[["in.files"]], to = rename[["out.files"]])
   }else if(type=="none"){
     print("No file transfer specified")
   }else{
-    warning("You chose an invalid type. No file transfer will occur. Choose one of c('move', 'copy', 'none') to avoid this warning")
+    message("You chose an invalid type. No file transfer will occur. Choose one of c('move', 'copy', 'none') to avoid this warning")
   }
 
   print(paste("This function completed at ", Sys.time(), sep = ""))
   return(rename)
+  #rm(timelapse, images1, images2, images3, images4, x1, x2, x3in, x3out, dirs, dirsTemp, rename)
+  #rm(timelapsefile, in.dir, out.dir, create.dirs, type)
 }
 
 
@@ -1047,27 +1055,46 @@ trapeffort_fun <- function(cttable, group, sessions=F, sessioncol){
   #rm(cttable, group)
 }
 
-### Number of Photos (Added 2021-08-19)
-imageeffort_fun <- function(...){
-  #AP <- list(PreCon = AP1_precon, EarlyCon = AP1_earlycon)
+### Number of Photos (Added 2021-08-19, Modified 2022-07-14)
+imageeffort_fun <- function(x, type){
+  #x <- list('20220117' = read.csv("K:/Completed/new_20220117/timelapse_out_20220117.csv"), '20220214' = read.csv("K:/Completed/new_20220214/timelapse_out_20220214.csv"))
+  #type <- "timelapse"
 
-  AP <- list(...)
-  ghosts <- lapply(AP, function(x){x[x[,2]=="ghost",]})
-  human <- lapply(AP, function(x){x[x[,2]=="human",]})
-
-  require(foreach)
-  out <- foreach(a=1:length(AP), .combine = rbind) %do% {
-    data.frame(total = nrow(AP[[a]]), animal = nrow(AP[[a]]) - nrow(ghosts[[a]]) - nrow(human[[a]]), ghost = nrow(ghosts[[a]]), human = nrow(human[[a]]),
-               success = NA)
+  if(type=="timelapse"){
+    AP <- lapply(x, YamashitaFuns2::APFun_Timelapse)
+  }else if(type=="dataorganize"){
+    AP <- x
+  }else{
+    stop("Your data must be a 'timelapse' or 'dataorganize' file.")
   }
+
+  if(is.null(names(AP))){
+    name <- F
+    message("Your items do not have names. They will be outputted in the order they were inputted")
+  }else{
+    name <- T
+  }
+
+  ghosts <- lapply(AP, function(y){y[y[,2]=="ghost",]})
+  human <- lapply(AP, function(y){y[y[,2]=="human",]})
+
+  out <- do.call(rbind, lapply(1:length(x), function(i){
+    data.frame(total = nrow(x[[i]]), animal = nrow(x[[i]]) - nrow(ghosts[[i]]) - nrow(human[[i]]), human = nrow(human[[i]]), ghost = nrow(ghosts[[i]]), success = NA)
+  }))
   rownames(out) <- names(AP)
 
   total <- apply(out, 2, sum)
-  out2 <- rbind(out,total = total)
+  out2 <- rbind(out,total = apply(out, 2, sum))
+  if(isFALSE(name)){
+    rownames(out2) <- c(1:nrow(out), "total")
+  }else{
+    rownames(out2) <- c(names(AP), "total")
+  }
   out2[,"success"] <- with(out2, animal/total)
 
   return(out2)
-  rm(AP, ghosts, human, a, out, total, out2)
+  rm(AP, name, ghosts, human, out, total, out2)
+  #rm(x, type)
 }
 
 
@@ -1122,19 +1149,19 @@ actfun <- function(x, split=F, splitcol=NULL, species, bw = NULL, rep = 999){
   #rm(x, split, splitcol, species, bw, rep)
 }
 
-### Setting up for occupancy modelling from an APFun_env output (Added 2022-01-14)
-occFun <- function(x, ct, unit, subset, ct_probs=T, count=F){
-  #x <- AP2
-  #ct <- cttable2
+### Setting up for occupancy modelling from an APFun_env output (Added 2022-01-14, Modified 2022-07-07)
+occFun <- function(x, ct, unit, subset, stationCol, sessionCol=NULL, ct_probs=T, count=T){
+  #x <- AP2_swift
+  #ct <- CT
   #unit <- "1 days"
-  #subset <- c("bobcat", "coyote")
-  #count <- T
+  #subset <- c("rio_grande_turkey")
+  #count <- F
   #ct_probs <- T
+  #stationCol <- "Site"
+  #sessionCol <- NULL
 
   #require(camtrapR)
   #require(lubridate)
-  #require(dplyr)
-  #require(tidyr)
 
   if(isFALSE(grepl("day", unit))){
     stop("Use days")
@@ -1142,58 +1169,123 @@ occFun <- function(x, ct, unit, subset, ct_probs=T, count=F){
 
   unit1 <- ceiling(as.numeric(sub("days", "", unit, ignore.case = T))/2)
 
+  # Dealing with active and inactive camera trap nights
   if(is.logical(ct_probs)){
     if(isTRUE(ct_probs)){
-      camop <- camtrapR::cameraOperation(ct, stationCol = "Camera", setupCol = "Setup_date", retrievalCol = "Retrieval_date", hasProblems = T)
+      if(is.null(sessionCol)==T){
+        camop <- camtrapR::cameraOperation(ct, stationCol = stationCol, cameraCol = "Camera",
+                                           byCamera = F, allCamsOn = F, camerasIndependent = F,
+                                           setupCol = "Setup_date", retrievalCol = "Retrieval_date", hasProblems = T)
+      }else{
+        warning("This function is untested when specifying sessionCol other than NULL. The sortCol may not get called properly.")
+        camop <- camtrapR::cameraOperation(ct, stationCol = stationCol, cameraCol = "Camera", sessionCol = sessionCol,
+                                           byCamera = F, allCamsOn = F, camerasIndependent = F,
+                                           setupCol = "Setup_date", retrievalCol = "Retrieval_date", hasProblems = T)
+      }
     }else if(isFALSE(ct_probs)){
-      camop <- camtrapR::cameraOperation(ct, stationCol = "Camera", setupCol = "Setup_date", retrievalCol = "Retrieval_date")
+      warning("When there are no problems in the ct table, the ct table is only used to gather the site list and range of dates.")
+      if(is.null(sessionCol)==T){
+        camop <- camtrapR::cameraOperation(ct, stationCol = stationCol, cameraCol = "Camera",
+                                           byCamera = F, allCamsOn = F, camerasIndependent = F,
+                                           setupCol = "Setup_date", retrievalCol = "Retrieval_date")
+      }else{
+        warning("This function is untested when specifying sessionCol other than NULL. The sortCol may not get called properly.")
+        camop <- camtrapR::cameraOperation(ct, stationCol = stationCol, cameraCol = "Camera", sessionCol = sessionCol,
+                                           byCamera = F, allCamsOn = F, camerasIndependent = F,
+                                           setupCol = "Setup_date", retrievalCol = "Retrieval_date")
+      }
     }
   }else{
-    stop("ct_probs should be logical")
+    stop("ct_probs should be logical (T,F)")
   }
+
   camop[camop==0] <- -5
   camop[camop==1] <- 0
 
-  cams <- data.frame("Camera" = rownames(camop))
+  camopt <- t(camop)
 
-  camopt <- data.frame("Date" = colnames(camop), "Date2" = lubridate::floor_date(as.Date(colnames(camop)), unit = unit), t(camop))
-  dates <- camopt[,1:2]
+  dates <- data.frame(Date = as.Date(colnames(camop)))
+  dates$Date2 <- rep(seq.Date(min(dates$Date), max(dates$Date), by = unit), each = as.numeric(sub("days", "", unit, ignore.case = T)))[1:nrow(dates)]
 
-  active <- aggregate(camopt[,3:ncol(camopt)], by = list(camopt$Date2), sum)
+  camdate <- data.frame(sortCol = rep(rownames(camop), each = ncol(camop)), Date = rep(dates[,1], times = nrow(camop)), Date2 = rep(dates[,2], times = nrow(camop)))
+  camdate$camdate <- with(camdate, paste(sortCol, Date, sep = "_"))
+
+  if(ncol(camop) * nrow(camop) != nrow(camdate)){
+    stop("# Cameras * # dates does not equal total rows. Check the function. This error shouldn't be possible.")
+  }
+
+  active <- aggregate(camopt, by = list(Date2 = dates$Date2), sum)
   rownames(active) <- active[,1]
-
   activet <- t(active[,2:ncol(active)])
-  rownames(activet) <- rownames(camop)
   activet[activet<=(-5*unit1)] <- NA
   activet[activet>(-5*unit1)] <- 0
 
+  print(paste("There should be ", dim(activet)[1], " rows and ", dim(activet)[2], " columns in each output.", sep = ""))
+
+  # Now for the camera data
+  x$sortCol <- x[,stationCol]
+  x$Date <- as.Date(x$Date)
+  x$camdate <- with(x, paste(sortCol, Date, sep = "_"))
   x1 <- split(x, factor(x$Species))
   x2 <- x1[subset]
 
-  x3 <- lapply(x2, function(y){
-    y$Date2 <- lubridate::floor_date(y$Date, unit = unit)
-    y2 <- dplyr::summarize(dplyr::group_by(y, Camera, Date2), n = n())
+  x3 <- lapply(x2, function(a){
+    a1 <- aggregate(Individuals~camdate, data = a, sum)
+    a2 <- merge.data.frame(camdate, a1, by = "camdate", all.x = T)
+    a2$Individuals[is.na(a2$Individuals)] <- 0
+
+    a3 <- aggregate(Individuals~sortCol+Date2, data = a2, sum)
+
+    a4 <- reshape(a3, direction = "wide", timevar = "Date2", idvar = "sortCol")
+    row.names(a4) <- a4[,1]
+    a5 <- as.matrix(a4[,-1])
+    colnames(a5) <- as.character(unique(a3$Date2))
+
+    if(dim(a5)[1]!=dim(activet)[1] | dim(a5)[2]!=dim(activet)[2]){
+      warning("Your camera data and ct table have different numbers of sites and dates")
+    }
+
     if(is.logical(count)==T){
       if(isFALSE(count)){
-        y2$n <- ifelse(y2$n>0,1,0)
+        a5 <- ifelse(a5>0,1,0)
       }
     }else{
-      stop("count should be logical")
+      stop("The count variable must be a logical (T,F)")
     }
-    y2b <- merge.data.frame(dates, y2, by = "Date2", all.x = T, all.y = T, sort.x = T)
-    y3 <- tidyr::pivot_wider(y2b, names_from = Date2, values_from = n)
-    y4 <- merge.data.frame(cams, y3, by = "Camera", all.x = T)
-    y4[is.na(y4)==T] <- 0
-    y5 <- y4[,3:ncol(y4)]
-    comb <- y5 + activet
-    rownames(comb) <- cams$Camera
-    return(comb)
-    #rm(y2, y2b, y3, y4, y5, comb)
-    #rm(y)
+
+    length(a5[a5>0])
+
+    if(ct_probs==T){
+      comb <- a5 + activet
+      print(paste(length(comb[comb>0 & !is.na(comb)]), " camera trap nights had a detection of a ", unique(a$Species), sep = ""))
+      if(length(comb[comb>0 & !is.na(comb)]) < length(a5[a5>0])){
+        warning(paste("For ", unique(a$Species), ", inactive camera trap nights removed some detections. This is what this function is supposed to do.", sep = ""))
+      }else if(length(comb[comb>0 & !is.na(comb)]) > length(a5[a5>0])){
+        warning(paste("For ", unique(a$Species), ", Something strange happened. Detections were added when accounting for inactive camera trap nights."))
+      }
+      return(comb)
+    }else{
+      print(paste(length(a5[a5>0]), " camera trap nights had a detection of a ", unique(a$Species), sep = ""))
+      return(a5)
+    }
+    rm(a1,a2,a3,a4,a5,comb)
+    rm(a)
   })
+
+  if(is.logical(count)==T){
+    if(isFALSE(count)){
+      print("Presence/absence data is outputted")
+    }else{
+      print("Abundance data is outputted")
+    }
+  }else{
+    stop("The count variable must be a logical (T,F)")
+  }
+
   return(x3)
-  rm(unit1, camop, cams, camopt, dates, active, activet, x1, x2, x3)
-  #rm(x, ct, unit, subset, ct_probs, count)
+
+  rm(unit1, camop, camopt, dates, camdate, active, activet, x1, x2, x3)
+  #rm(x, ct, unit, subset, stationCol, sessionCol, ct_probs, count)
 }
 
 
