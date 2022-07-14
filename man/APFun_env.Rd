@@ -8,7 +8,8 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-APFun_env(x,y,sort.col="Camera",exclude=c("ghost"),start_date,end_date=Sys.Date(),interval=NULL,all.pics=FALSE)
+APFun_env(x,y,sort.col="Camera",exclude=c("ghost"),start_date,
+          end_date=Sys.Date(),interval=NULL,all.pics=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

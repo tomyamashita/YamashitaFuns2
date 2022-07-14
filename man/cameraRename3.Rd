@@ -6,7 +6,9 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-cameraRename3(in.dir, out.dir=NULL, file.type, trigger.info=NULL, rename="none", return.type = "list", adjust = NULL, fix.names = FALSE, pp = FALSE, cores.left = NULL)
+cameraRename3(in.dir, out.dir=NULL, file.type, trigger.info=NULL,
+              rename="none", return.type = "list", adjust = NULL, fix.names = FALSE,
+              pp = FALSE, cores.left = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -7,7 +7,8 @@
 Before running this function for the first time on a new machine see the details below.
 }
 \usage{
-cameraRename2(in.dir, out.dir, file.type, trigger.info=NULL, rename=FALSE, adjust = NULL, fix.names = FALSE)
+cameraRename2(in.dir, out.dir, file.type, trigger.info=NULL,
+              rename=FALSE, adjust = NULL, fix.names = FALSE)
 }
 \arguments{
   \item{in.dir}{String. The directory where the pictures are located. I typically specify a folder containing the camera folders although theoretically any folder could work. The function can look for either ".jpg" or ".mp4" files.}
@@ -43,15 +44,10 @@ In previous versions of this function, there was an issue with file.rename not w
 }
 
 \seealso{
-  \code{\link{cameraRename}}, \code{\link{cameraRename3}},  \code{\link[exiftoolr]{install_exiftool}}
+  \code{\link{cameraRename}}, \code{\link{cameraRename3}}, \code{\link[exiftoolr]{install_exiftool}}
 }
 \examples{
 ## Not run
-### To rename images after running the function and specifying rename to FALSE or "none"
-### Data is not specified in this example.
-#out <- cameraRename2(in.dir, out.dir, file.type = ".jpg", trigger.info=NULL, rename=FALSE, adjust = NULL, fix.names = FALSE)
-#with(out, file.rename(paste(inpath, old.name, sep = "/"), paste(outpath, new.name, sep = "/"))
-
 
 ## The function is currently defined as
 function (x)
