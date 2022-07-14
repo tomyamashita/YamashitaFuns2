@@ -1060,6 +1060,9 @@ imageeffort_fun <- function(x, type){
   #x <- list('20220117' = read.csv("K:/Completed/new_20220117/timelapse_out_20220117.csv"), '20220214' = read.csv("K:/Completed/new_20220214/timelapse_out_20220214.csv"))
   #type <- "timelapse"
 
+  if(is.data.frame(x)){
+    x <- list(x)
+  }
   if(type=="timelapse"){
     AP <- lapply(x, YamashitaFuns2::APFun_Timelapse)
   }else if(type=="dataorganize"){
@@ -1150,7 +1153,7 @@ actfun <- function(x, split=F, splitcol=NULL, species, bw = NULL, rep = 999){
 }
 
 ### Setting up for occupancy modelling from an APFun_env output (Added 2022-01-14, Modified 2022-07-07)
-occFun <- function(x, ct, unit, subset, stationCol, sessionCol=NULL, ct_probs=T, count=T){
+occFun <- function(x, ct, unit, subset, stationCol, sessionCol=NULL, ct_probs=T, count=F){
   #x <- AP2_swift
   #ct <- CT
   #unit <- "1 days"

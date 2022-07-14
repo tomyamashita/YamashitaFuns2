@@ -29,7 +29,7 @@ timeConvert(ds, date.col, time.col, LocalTZ)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link{lubridate::with_tz}}
+  \code{\link[lubridate]{with_tz}}
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----

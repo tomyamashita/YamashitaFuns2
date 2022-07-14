@@ -33,9 +33,7 @@ Example: xcopy e:/new_20211015/images e:/new_20211015/ghosts /t /e [Use a "\" in
   \item{in.files}{The full file paths to the input ghost images}
   \item{out.files}{The full file paths to the output ghost images}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Thomas J. Yamashita
 }
 

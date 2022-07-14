@@ -38,8 +38,11 @@ Kevin Ryer developed early versions of the APFun_env function.
 
 
 ## Changelog
+0.0.0.20 - 2022-07-14
+  Fixed links to functions in this package and other packages. 
+
 0.0.0.19 - 2022-07-14
-  Modified the imageeffort_fun function to require a list object input and provide an option to input a timelapse or dataorganize file. This was to make running the function smoother.
+  Modified the imageeffort_fun function to require a list object input and provide an option to input a timelapse or dataorganize file. This was to make running the function smoother. Removed the foreach requirement.
   Modified the movePictures function to require an object input instead of a file path. This reduces the likelihood of errors in the functionality. Also made slight tweaks to the code to improve efficiency.
 
 0.0.0.18 - 2022-07-07

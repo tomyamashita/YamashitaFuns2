@@ -17,13 +17,8 @@ findCorruptImages(in.dir, file.type, pp, cores.left = NULL)
 }
 \value{A list of the corrupt files and the non-corrupt files on either side of it for easy locating within the file directory.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Thomas J. Yamashita}
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 

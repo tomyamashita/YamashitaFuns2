@@ -29,7 +29,7 @@ trapeffort_fun(cttable, group, sessions=F, sessioncol)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link{ctdates}}
+  \code{\link{ctdates_fun}}
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----

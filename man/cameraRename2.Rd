@@ -43,7 +43,7 @@ In previous versions of this function, there was an issue with file.rename not w
 }
 
 \seealso{
-  \code{\link{cameraRename}}, \code{\link{exiftoolr::install_exiftool}}
+  \code{\link{cameraRename}}, \code{\link{cameraRename3}},  \code{\link[exiftoolr]{install_exiftool}}
 }
 \examples{
 ## Not run

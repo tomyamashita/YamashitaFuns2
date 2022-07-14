@@ -29,7 +29,7 @@ ctdates_fun(cttable, start.col=6)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-  \code{\link{trapeffort}}
+  \code{\link{trapeffort_fun}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
