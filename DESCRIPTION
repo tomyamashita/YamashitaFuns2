@@ -1,7 +1,7 @@
 Package: YamashitaFuns2
 Type: Package
 Title: Functions for processing camera trap imagery and some other stuff
-Version: 0.0.0.19
+Version: 0.0.0.20
 Authors@R: c(person("Thomas J.", "Yamashita", 
                     role = c("aut", "cre"), 
                     email = "tjyamashta@gmail.com", 
@@ -16,8 +16,7 @@ License: CC BY 4.0
 Encoding: UTF-8
 LazyData: true
 Depends: 
-    R (>= 4.0.2)
-    foreach
+    R (>= 4.2.0)
 Imports: 
     activity,
     camtrapR, 
@@ -25,10 +24,11 @@ Imports:
     exiftoolr,
     jsonlite,
     lubridate,
-    openxlsx, 
     parallel,
     pbapply,
-    tidyr,
     zoo
 Suggests:
-    ggplot2
+    ggplot2, 
+    foreach, 
+    openxlsx, 
+    tidyr
