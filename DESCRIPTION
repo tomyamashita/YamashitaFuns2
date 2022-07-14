@@ -1,7 +1,7 @@
 Package: YamashitaFuns2
 Type: Package
 Title: Functions for processing camera trap imagery and some other stuff
-Version: 0.0.0.18
+Version: 0.0.0.19
 Authors@R: c(person("Thomas J.", "Yamashita", 
                     role = c("aut", "cre"), 
                     email = "tjyamashta@gmail.com", 
