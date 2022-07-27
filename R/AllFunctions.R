@@ -698,23 +698,23 @@ APFun_env <- function(x,y,sort.col="Camera",exclude=c("ghost"),start_date,end_da
 APFun_Timelapse <- function(x){
   #x <- AP1_t
 
-  images1 <- x[,c(1,2,11,12)]
+  images1 <- x[,c("File", "RelativePath", "Species1", "Species1_Ind")]
   colnames(images1) <- c("File", "Path", "Species", "Individuals")
 
-  if(is.character(x$Species2)){
-    images2 <- x[x$Species2!="",c(1,2,13,14)]
+  if(!all(is.na(x$Species2))){
+    images2 <- x[x$Species2!="",c("File", "RelativePath", "Species2", "Species2_Ind")]
     colnames(images2) <- c("File", "Path", "Species", "Individuals")
   }else{
     images2 <- NULL
   }
-  if(is.character(x$Species3)){
-    images3 <- x[x$Species3!="",c(1,2,15,16)]
+  if(!all(is.na(x$Species3))){
+    images3 <- x[x$Species3!="",c("File", "RelativePath", "Species3", "Species3_Ind")]
     colnames(images3) <- c("File", "Path", "Species", "Individuals")
   }else{
     images3 <- NULL
   }
-  if(is.character(x$SpeciesOther)){
-    images4 <- x[x$SpeciesOther!="",c(1,2,17,18)]
+  if(!all(is.na(x$SpeciesOther))){
+    images4 <- x[x$SpeciesOther!="",c("File", "RelativePath", "SpeciesOther", "Other_Ind")]
     colnames(images4) <- c("File", "Path", "Species", "Individuals")
   }else{
     images4 <- NULL
@@ -949,7 +949,7 @@ ctdates_fun <- function(cttable, start.col=6){
 }
 
 ### Quality control for timelapse-sorted images (Added 2022-03-24)
-timelapseQC <- function(ds){
+timelapseQC <- function(ds, exclude=NULL){
   # ds <- read.csv("timelapse_out_20220117_BL.csv)
 
   # Check for video files
@@ -975,11 +975,11 @@ timelapseQC <- function(ds){
   missing_spec <- ds[ds$Species1=="",]
 
   # Check missing individuals data in species data
-  exclude <- c("ghost", "human", "",
-               "rodent",
-               "bird",
-               "leopard_frog", "unk_amphibian",
-               "spiny_lizard", "unk_lizard", "whiptail_lizard")
+  if(is.null(exclude)){
+    exclude <- c("ghost", "human", "", "rodent", "bird")
+  }else{
+    exclude <- exclude
+  }
   no_ind <- list(
     no_ind1 = images[!(images$Species1 %in% exclude),][images[!(images$Species1 %in% exclude),]$Species1_Ind==0,],
     no_ind2 = if(!any(is.na(unique(images$Species2)))){images[!(images$Species2 %in% exclude),][images[!(images$Species2 %in% exclude),]$Species2_Ind==0,]},
