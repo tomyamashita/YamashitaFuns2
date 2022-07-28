@@ -627,7 +627,7 @@ APFun_env <- function(x,y,sort.col="Camera",exclude=c("ghost"),start_date,end_da
   }
 
   # Formatting the columns in the AllPictures file
-  colnames(x)=c("Camera","Species","Year","Month","Day","Hour","Minute","Second","# of Individuals")
+  colnames(x)=c("Camera","Species","Year","Month","Day","Hour","Minute","Second","N.Individuals")
   if(isTRUE(is.na(exclude))){
     x1 <- x
   }else{
@@ -672,8 +672,8 @@ APFun_env <- function(x,y,sort.col="Camera",exclude=c("ghost"),start_date,end_da
   x5 <- x4[!(x4$delta.time.secs < interval),]
   x5$Ident2 <- seq(1, nrow(x5))
   x5a <- merge.data.frame(x5, x4, by="Ident", all.y=TRUE, sort.y=TRUE)
-  x5b <- zoo::na.locf(x5a, fromLast=FALSE)
-  x5c <- dplyr::summarise(dplyr::group_by(x5b, Ident2), Individuals = max(`# of Individuals.y`))
+  x5b <- data.frame(x5a[,c(1,(ncol(x5)+1):ncol(x5a))], Ident2 = zoo::na.locf(x5a$Ident2, fromLast=FALSE))
+  x5c <- dplyr::summarise(dplyr::group_by(x5b, Ident2), Individuals = max(`N.Individuals.y`))
 
   # Sorting the columns and removing unnecessary columns
   if(all.pics==TRUE){
