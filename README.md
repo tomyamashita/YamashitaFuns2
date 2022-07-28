@@ -40,6 +40,7 @@ Kevin Ryer developed early versions of the APFun_env function.
 ## Changelog
 0.0.0.22 - 2022-07-28
   Modified the APFun_env function to reduce the likelihood that the zoo::na.locf() function does not work
+  Fixed the timelapseQC function to exclude "" from a user-selected exclude statement
 
 0.0.0.21 - 2022-07-27
   Modified the timelapseQC function to allow the user to set which species are excluded from the check on number of individuals

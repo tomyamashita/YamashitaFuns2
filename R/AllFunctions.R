@@ -954,7 +954,7 @@ timelapseQC <- function(ds, exclude=NULL){
 
   # Check for video files
   if(isTRUE(any(grepl(".MP4", ds$File, ignore.case = T)))){
-    warning("Video files detected. Number of individuals only analyzed for images")
+    message("Video files detected. Number of individuals only analyzed for images")
     video <- ds[grep(".MP4", ds$File, ignore.case = T),]
     images <- ds[-grep(".MP4", ds$File, ignore.case = T),]
   }else{
@@ -978,7 +978,7 @@ timelapseQC <- function(ds, exclude=NULL){
   if(is.null(exclude)){
     exclude <- c("ghost", "human", "", "rodent", "bird")
   }else{
-    exclude <- exclude
+    exclude <- c(exclude, "")
   }
   no_ind <- list(
     no_ind1 = images[!(images$Species1 %in% exclude),][images[!(images$Species1 %in% exclude),]$Species1_Ind==0,],
@@ -993,17 +993,17 @@ timelapseQC <- function(ds, exclude=NULL){
   if(nrow(missing_spec)==0){
     print("All files were labelled by species")
   }else{
-    warning(paste(nrow(missing_spec), " file(s) were not labelled by species. These were: \n", paste(missing_spec$File, collapse = "\n"), sep = ""))
+    message(paste(nrow(missing_spec), " file(s) were not labelled by species. These were: \n", paste(missing_spec$File, collapse = "\n"), sep = ""))
   }
   if(nrow(missing_ind)==0){
     print("All files were labelled by individual")
   }else{
-    warning(paste(nrow(missing_ind), " file(s) were not labelled by individual. These were: \n", paste(missing_ind$RelativePath, missing_ind$File, collapse = "\n", sep = "\\"), sep = ""))
+    message(paste(nrow(missing_ind), " file(s) were not labelled by individual. These were: \n", paste(missing_ind$RelativePath, missing_ind$File, collapse = "\n", sep = "\\"), sep = ""))
   }
 
   out <- list("Unique Species" = unique_species, "Missing Species" = missing_spec, "Missing Ind" = missing_ind)
   return(out)
-  rm(unique_spec, unique_species, missing_spec, exclude, no_inds, missing_ind, out)
+  rm(unique_spec, unique_species, missing_spec, exclude, no_ind, missing_ind, out)
   #rm(ds)
 }
 
